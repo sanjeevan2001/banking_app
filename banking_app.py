@@ -1,4 +1,5 @@
 # python banking_app.py
+from datetime import date
 # ok
 def int_input(num):
     while True:
@@ -11,11 +12,12 @@ def int_input(num):
                 print("Enter your positive number.")               
         except ValueError:
             print("Enter your integer value.")
+
 # ok.
-def withdrow_money(user_ID):
+def withdraw_money(user_ID):
     with open("user_balance.txt", "r") as balance_file:
         a = balance_file.readlines()
-    date = input("enter the date: ")
+    today_date = date.today()
     reason = input("enter the reason: ")
     user_balance = {}
     for i in a:
@@ -29,13 +31,13 @@ def withdrow_money(user_ID):
         withdrow_amount = int_input("Enter your withdrowal amount: ")
         if withdrow_amount <= balance:
             balance -= withdrow_amount
-            print("new balance after the withdrow: ", balance)
+            print("new balance after the withdraw: ", balance)
             break
         else:
             print("Enter the correct value.")
 
     with open("transaction_history.txt", "a") as final:
-        final.write(f"{user_ID}, {date}, withdrow, {reason}, {balance}\n")
+        final.write(f"{user_ID}, {today_date}, withdraw, {reason}, {balance}\n")
     user_balance[user_ID] = balance
 
     j = 0
@@ -57,7 +59,7 @@ def withdrow_money(user_ID):
 def deposit_money(user_ID):
     with open("user_balance.txt", "r") as get_balance:
         a = get_balance.readlines()
-        date = input("enter the date: ")
+        today_date = date.today()
         reason = input("enter the reason: ")
         c = {}
 
@@ -73,20 +75,20 @@ def deposit_money(user_ID):
     balance += deposit_amount
     print("new balance after deposit: ", balance)
     with open("transaction_history.txt", "a") as final:
-        final.write(f"{user_ID}, {date}, deposit, {reason}, {balance}\n")
+        final.write(f"{user_ID}, {today_date}, deposit, {reason}, {balance}\n")
 
     c[user_ID] = balance
 
     j = 0
     for key, values in c.items():
-        
         if j == 0:
             j = 1
             with open("user_balance.txt", "w") as update:
-                update.write(f"{key}, {values}")
+                update.write(f"{key}, {values}\n")
         else:
             with open("user_balance.txt", "a") as update:
-                update.write(f"{key}, {values}")
+                update.write(f"{key}, {values}\n")
+    
 
     '''
     with open("user_balance.txt", "w") as update:
@@ -96,18 +98,16 @@ def deposit_money(user_ID):
 
 # ok.
 def register_user():
-    name = input("user name: ")
+    name = input("name: ")
     address = input("address: ")
     phone_number = input("phone number: ")
     user_name = input("create user name: ")
-    password = input("create user password: ")
+    password = input("create password: ")
     amount = int_input("Enter ypur starting amount: ")
-    date = input("Enter the today date: eg-DD/MM/YYYY :- ")
+    today_date = date.today()
     try:
         with open("registration.txt", "r") as create_user_ID:
-            user_ID_list = []
             user_ID_list = create_user_ID.readlines()
-
     except FileNotFoundError:
         user_ID_list = []
     if len(user_ID_list) == 0:
@@ -127,86 +127,33 @@ def register_user():
         balance.write(f"{user_ID}, {amount}\n")
 
     with open("transaction_history.txt", "a") as transaction:
-        transaction.write(f"{user_ID}, {date}, initial deposit, account creation,{amount}\n")
+        transaction.write(f"{user_ID}, {today_date}, initial deposit, account creation,{amount}\n")
 
 def register_admin():
-    while True:
-        name = input("admin name: ")
-        address = input("address: ")
-        phone_number = input("phone number: ")
-        admin_name = input("create admin name: ")
-        password = input("create admin password: ")
-        try:
-            with open("admin_registration.txt", "r") as create_admin_ID:
-                admin_ID_list = []
-                admin_ID_list = create_admin_ID.readlines()
+    name = input("name: ")
+    address = input("address: ")
+    phone_number = input("phone number: ")
+    admin_name = input("create admin name: ")
+    password = input("create admin password: ")
+    try:
+        with open("admin_registration.txt", "r") as create_admin_ID:
+            admin_ID_list = create_admin_ID.readlines()
 
-        except FileNotFoundError:
-            admin_ID_list = []
+    except FileNotFoundError:
+        admin_ID_list = []
 
-        if len(admin_ID_list) == 0:
-            admin_ID = f"A1001"
-        else:
-            last_line = admin_ID_list[-1].strip()
-            z = int(last_line.split(",")[0].strip()[1:]) + 1
-            admin_ID = f"A{z}"
+    if len(admin_ID_list) == 0:
+        admin_ID = f"A1001"
+    else:
+        last_line = admin_ID_list[-1].strip()
+        z = int(last_line.split(",")[0].strip()[1:]) + 1
+        admin_ID = f"A{z}"
 
-        with open("admin_registration.txt", "a") as registration:
-            registration.write(f"{admin_ID}, name: {name}, address: {address}, phone number: {phone_number}\n")
+    with open("admin_registration.txt", "a") as registration:
+        registration.write(f"{admin_ID}, name: {name}, address: {address}, phone number: {phone_number}\n")
 
-        with open('admin.txt', 'a') as user_login:
-            user_login.write(f"{admin_ID}, user name: {admin_name}, password: {password}\n")
-
-        print("1.continue")
-        print("2.Exit")
-        num_1 = int_input("Enter your choice: ")
-        if num_1 < 2:
-            if num_1 == 1:
-                pass
-        elif num_1 == 2:
-            break
-        else:
-            print("Enter the correct value.")
-
-
-# ok
-def user_login_check(user_name,password):
-    with open("user.txt","r") as get_user , open("registration.txt", "r") as get_name:
-        a = get_user.readlines()
-        name = get_name.readlines()
-    for i in a:
-        get_user_name = i.split(",")[1].strip().split(":")[1].strip()
-        get_password = i.split(",")[2].strip().split(":")[1].strip()
-        get_user_ID = i.split(",")[0].strip()
-
-        if get_user_name == user_name and get_password == password:
-            print("user login successful.")
-            for j in name:
-                last_ID = j.strip().split(",")[0].strip()
-                if get_user_ID == last_ID:
-                    original_name = j.strip().split(",")[1].strip()
-                    return [get_user_ID, original_name, user_name, password]
-    return None
-    
-           
-
-def admin_login_check(admin_name,password):
-    with open("admin.txt","r") as admin_user , open("admin_registration.txt", "r") as get_name:
-        admin_lines = admin_user.readlines()
-        name_lines = get_name.readlines()
-    final = []
-    for i in admin_lines:
-        get_admin_name = i.split(",")[1].strip().split(":")[1].strip()
-        get_password = i.split(",")[2].strip().split(":")[1].strip()
-        get_admin_ID = i.split(",")[0].strip()
-        if get_admin_name == admin_name and get_password == password:
-            print("user login successful.")
-            for j in name_lines:
-                last_ID = j.strip().split(",")[0].strip()
-                if get_admin_ID == last_ID:
-                    last_name = j.strip().split(",")[1].strip()
-                    return [get_admin_ID,last_name, admin_name, password]
-    return None
+    with open('admin.txt', 'a') as user_login:
+        user_login.write(f"{admin_ID}, user name: {admin_name}, password: {password}\n")
 
 def check_balance(user_ID, name):
     with open("user_balance.txt", "r") as check_balance:
@@ -217,110 +164,106 @@ def check_balance(user_ID, name):
             if a == user_ID:
                 print(f"Hi {name}. your balance is: {balance}")
 
-def user_login():
+# ok
+def user_login(user_ID, name, user_name, user_password):
+    user_info =[user_ID, name, user_name, user_password]
+    while True:
+        print("1.Deposit.")
+        print("2.Withdrow.")
+        print("3.Check balance")
+        print("4.Transaction History.")
+        print("5.Exit")
+        value = int_input("Enter your choice: ")
+        if value == 1:
+            deposit_money(user_info[0])
+        elif value == 2:
+            withdraw_money(user_info[0])
+        elif value == 3:
+            check_balance(user_info[0], user_info[1])
+        elif value == 4:
+            transaction_history(user_info[0])
+        elif value == 5:
+            break
+        else:
+            print("value select correct number")
+
+    
+           
+
+def user_login_check():
+    with open("user.txt","r") as get_user , open("registration.txt", "r") as get_name:
+        a = get_user.readlines()
+        name = get_name.readlines()
+
     while True:
         user_name = input("Enter the user name")
         password = input("Enter the password")
-        final = user_login_check(user_name,password)   # user_ID, name, user_name, password 
-        if final is not None and len(final) == 4:
-            user_ID = final[0]
-            print("1.Deposit.")
-            print("2.Withdrow.")
-            print("3.Check balance")
-            print("4.Transaction History.")
-            print("5.Exit")
-            value = int_input("Enter your choice: ")
-            if value < 5:
-                if value == 1:
-                    deposit_money(user_ID)
-                elif value == 2:
-                    withdrow_money(user_ID)
-                elif value == 3:
-                    check_balance(user_ID, final[1])
-                elif value == 4:
-                    transaction_history(user_ID)
-            elif value == 5:
-                break
-            else:
-                print("value select correct number")
+        for i in a:
+            get_user_name = i.split(",")[1].strip().split(":")[1].strip() # user name
+            get_password = i.split(",")[2].strip().split(":")[1].strip() #user password
+            get_user_ID = i.split(",")[0].strip() # user ID
+
+            if get_user_name == user_name and get_password == password:
+                print("user login successful.")
+                for j in name:
+                    last_ID = j.strip().split(",")[0].strip() 
+                    if get_user_ID == last_ID:
+                        original_name = j.strip().split(",")[1].strip() # original name
+                        user_login(get_user_ID, original_name, user_name, password)
+                        return
         else:
             print("Invalid user name or password")
 
 # ok
 def change_user_name_password(user_ID):
-    while True:
-        with open('user.txt', 'r') as change:
-            x = change.readlines()
-        a = {}
-        b = 0
-        for i in x:
-            z = i.strip().split(",")[0].strip()
-            a[z] =  [i.strip().split(",")[1].strip()[6:],  i.strip().split(",")[2].strip()[10:]]
-            if user_ID == z:
-                new_username = input("Enter the new user name: ")
-                new_password = input("Enter the new password: ")
-                a[user_ID] =[new_username,new_password]
-            
-        for key,values in a.items():
-            if b == 0:
-                with open('user.txt', 'w') as update:
-                    update.write(f"{key}, user name: {values[0]}, password: {values[1]}\n")
-                    b = 1
-            else:
-                with open('user.txt', 'a') as update:
-                    update.write(f"{key}, user name: {values[0]}, password: {values[1]}\n")
-
-        print("finished user update...\n")
-        print("1.continue")
-        print("2.Exit")
-        num_1 = int_input("Enter your choice: ")
-        if num_1 < 2:
-            if num_1 == 1:
-                pass
-        elif num_1 == 2:
-            break
-        else:
-            print("Enter the correct value.")
-# ok
-def change_admin_name_password():
-    while True:
-        with open('admin.txt', 'r') as change:
-            admin_ID = input("Enter the admin ID: ")
-            # x = []
-            x = change.readlines()
-        a = {}
-        b = 0
-        for i in x:
-            z = i.strip().split(",")[0].strip()
-            a[z] =  [i.strip().split(",")[1].strip()[6:],  i.strip().split(",")[2].strip()[10:]]
-            if admin_ID == z:
-                new_admin_name = input("Enter the new admin name: ")
-                new_password = input("Enter the new password: ")
-                a[admin_ID] =[new_admin_name,new_password]
-            
-        for key,values in a.items():
-            if b == 0:
-                with open('admin.txt', 'w') as update:
-                    update.write(f"{key}, user name: {values[0]}, password: {values[1]}\n")
+    with open('user.txt', 'r') as change:
+        x = change.readlines()
+    user_data = {}
+    b = 0
+    for i in x:
+        z = i.strip().split(",")[0].strip()
+        user_data[z] =  [i.strip().split(",")[1].strip()[6:],  i.strip().split(",")[2].strip()[10:]]
+        if user_ID == z:
+            new_username = input("Enter the new user name: ")
+            new_password = input("Enter the new password: ")
+            user_data[user_ID] =[new_username,new_password]
+        
+    for key,values in user_data.items():
+        if b == 0:
+            with open('user.txt', 'w') as update:
+                update.write(f"{key}, user name: {values[0]}, password: {values[1]}\n")
                 b = 1
-            else:
-                with open('admin.txt', 'a') as update:
-                    update.write(f"{key}, user name: {values[0]}, password: {values[1]}\n")
-        print("finished admin update...")
-        print("1.continue")
-        print("2.Exit")
-        num_1 = int_input("Enter your choice: ")
-        if num_1 < 2:
-            if num_1 == 1:
-                pass
-        elif num_1 == 2:
-            break
         else:
-            print("Enter the correct value.")
+            with open('user.txt', 'a') as update:
+                update.write(f"{key}, user name: {values[0]}, password: {values[1]}\n")
+    print("Username and password successfully updatede...\n")
+
+# ok
+def change_admin_name_password(admin_ID):
+    with open('admin.txt', 'r') as change:
+        x = change.readlines()
+    a = {}
+    b = 0
+    for i in x:
+        z = i.strip().split(",")[0].strip()
+        a[z] =  [i.strip().split(",")[1].strip()[6:],  i.strip().split(",")[2].strip()[10:]]
+        if admin_ID == z:
+            new_admin_name = input("Enter the new admin name: ")
+            new_password = input("Enter the new password: ")
+            a[admin_ID] =[new_admin_name,new_password]
+        
+    for key,values in a.items():
+        if b == 0:
+            with open('admin.txt', 'w') as update:
+                update.write(f"{key}, user name: {values[0]}, password: {values[1]}\n")
+            b = 1
+        else:
+            with open('admin.txt', 'a') as update:
+                update.write(f"{key}, user name: {values[0]}, password: {values[1]}\n")
+    print("finished admin update...")
 
 
-def delete_user(user_ID):
-    print(user_ID)
+
 
 
 
@@ -349,30 +292,59 @@ def transaction_history(user_ID):
             # pending 
             elif choice == 2:
                 date_input = input("Enter the spesific date: ")
+                check = False
                 print(f"{'user_ID'.ljust(8, '-')} {'Date'.center(12, '-')} {'type'.center(20, '-')} {'reason'.center(20, '-')} {'balance'.rjust(12, '-')}")
                 print("-"*80)
                 for k in transaction:
                     if date_input == k[1]:
+                        check = True
                         print(f"{k[0].ljust(8, "-")} {k[1].ljust(12,"-")} {k[2].ljust(20,"-")} {k[3].ljust(20,"-")} {k[4].rjust(12,"0")}")
-                    else:
-                        print("record not found.")
+                if check == False:
+                    print("record not found.")
                 print('finished'.center(80,'-'))
         elif choice == 3:
             break
         else:
             print("Enter the correct value.")
 
-        
+def admin_ID_check():
+    while True:
+        admin_ID = input("Enter the admin ID: ")
+        with open('admin.txt', 'r') as admins_ID:
+            admins_ID_list = admins_ID.readlines()
+        for i in admins_ID_list:
+            Admin_ID = i.split(',')[0].strip()
+            if Admin_ID == admin_ID:
+                return admin_ID
+        print('admin ID not found.')
+        print('1.continue')
+        print('2.break')
+        choice = int_input("Enter the correct number: ")
+        if choice < 2:
+            if choice == 1:
+                continue
+        elif choice == 2:
+            break
+        else:
+            print("Enter the correct value.")
+
+
 
 def user_ID_check():
     while True:
         user_ID = input("Enter the user ID: ")
         with open('user.txt', 'r') as users_ID:
             users_ID_list = users_ID.readlines()
+        with open('registration.txt','r') as user_name:
+            user_name_list = user_name.readlines()
         for i in users_ID_list:
             User_ID = i.split(',')[0].strip()
             if User_ID == user_ID:
-                return user_ID
+                for j in user_name_list:
+                    get_user_ID = j.split(',')[0].strip()
+                    name = j.split(',')[1].split(':')[1].strip()
+                    if get_user_ID == user_ID:
+                        return [user_ID, name]
         print('user ID not found.')
         print('1.continue')
         print('2.break')
@@ -389,9 +361,9 @@ def user_ID_check():
 
 # modify user data
 def admin_view(admin_ID):
+    print(admin_ID)
     while True:
-        print(admin_ID)
-        user_ID = user_ID_check()
+        user_data = user_ID_check() # user ID ,name
         print("1.Change user name and password.")
         print("2.deposit.")
         print("3.Withdrow.")
@@ -401,19 +373,19 @@ def admin_view(admin_ID):
         print("7.Exit.")
         print("\n")
         choice = int_input("Enter your choice: ")
-        if choice < 7:
-            if choice == 1:
-                change_user_name_password(user_ID)
-            elif choice == 2:
-                deposit_money(user_ID)
-            elif choice == 3:
-                withdrow_money(user_ID)
-            elif choice == 4:
-                check_balance(user_ID,"hello")
-            elif choice == 5:
-                transaction_history(user_ID)
-            elif choice == 6:
-                delete_user(user_ID)
+        if choice == 1:
+            change_user_name_password(user_data[0])
+        elif choice == 2:
+            deposit_money(user_data[0])
+        elif choice == 3:
+            withdraw_money(user_data[0])
+        elif choice == 4:
+            check_balance(user_data[0],user_data[1])
+        elif choice == 5:
+            transaction_history(user_data[0])
+        elif choice == 6:
+            # delete_user(user_ID)
+            pass
         elif choice == 7:
             break
         else:
@@ -421,34 +393,47 @@ def admin_view(admin_ID):
 
 
 
+
+
+def admin_login(admin_ID, name, admin_name, admin_password):
+    admin_info = [admin_ID, name, admin_name, admin_password] 
+    print("Admin login successful.")
+    while True:
+        print("1.Register and create user.")
+        print("2.modify user.")
+        print("3.Exit.")
+        print("\n")
+        admin_value = int_input("Enter your choice: ")
+        if admin_value == 1:
+            register_user()
+        elif admin_value == 2:
+            admin_view(admin_info[0])
+        elif admin_value == 3:
+            break
+        else:
+            print("enter the correct number.")
+
 # ok admin login
-def admin_login():
+def admin_login_check():
+    with open("admin.txt","r") as admin_user , open("admin_registration.txt", "r") as get_name:
+        admin_lines = admin_user.readlines()
+        name_lines = get_name.readlines()
     while True:
         admin_name = input("Enter the admin name: ")
         password = input("Enter the password: ")
-        final = admin_login_check(admin_name,password) # admin_ID, name, admin_name, password  
-        
-        if final is not None and len(final) == 4:
-            admin_ID = final[0]
-            print("Admin login successful.")
-            print("1.Register and create user.")
-            print("2.modify user.")
-            print("3.Exit.")
-            print("\n")
-            admin_value = int_input("Enter your choice: ")
-            if admin_value < 3:
-                if admin_value == 1:
-                    register_user()
-                elif admin_value == 2:
-                    admin_view(admin_ID)
-            elif admin_value == 3:
-                break
-                
-            else:
-                print("value select correct number")
+        for i in admin_lines:
+            get_admin_name = i.split(",")[1].strip().split(":")[1].strip() # admin name
+            get_password = i.split(",")[2].strip().split(":")[1].strip() # admin password
+            get_admin_ID = i.split(",")[0].strip() # admin ID
+            if get_admin_name == admin_name and get_password == password:
+                print("user login successful.")
+                for j in name_lines:
+                    last_ID = j.strip().split(",")[0].strip()
+                    if get_admin_ID == last_ID:
+                        last_name = j.strip().split(",")[1].strip() #real admin name
+                        admin_login(get_admin_ID, last_name, admin_name, password)
         else:
-            print("Invalid user name or password")
-
+            print("Invalid admin name or password.")
 
 # ok super_admin_login
 def super_admin_login():
@@ -456,9 +441,9 @@ def super_admin_login():
         super_admin_ID = "S1001"
         Super_admin_name = "S1001"
         Password = "S1001"
-        super_admin_name = input("Enter the user name:(S1001) ")
-        password = input("Enter the password:(S1001) ")
-        if Super_admin_name == super_admin_name and password == Password: #check login name and password
+        super_admin_name = input("Enter the user name:(S1001) :- ")
+        password = input("Enter the password:(S1001) :- ")
+        if Super_admin_name == super_admin_name and password == Password: #check login name and password   
             print("Super admin login successful.")
             print("1.register admin.")
             print("2.Change admin name and password.")
@@ -466,17 +451,16 @@ def super_admin_login():
             print("4.modify user.")
             print("5.Exit.")
             choice = int_input("Enter your choice: ") 
-            if choice < 5:
-                if choice == 1:
-                    register_admin()
-                    # break
-                elif choice == 2:
-                    change_admin_name_password()
-                    # break
-                elif choice == 3:
-                    change_user_name_password()
-                elif choice == 4:
-                    admin_view(super_admin_ID)
+            if choice == 1:
+                register_admin()
+            elif choice == 2:
+                admin_ID = admin_ID_check()
+                change_admin_name_password(admin_ID)
+            elif choice == 3:
+                user_ID = user_ID_check()
+                change_user_name_password(user_ID)
+            elif choice == 4:
+                admin_view(super_admin_ID)
             elif choice == 5:
                 break
             else:
@@ -492,14 +476,14 @@ def Main():
         print("2.Admin login.")
         print("3.super admin login.")
         print("4.Exit.")
-        choice = int_input("Enter our choice: ")
-        if choice < 4:
-            if choice == 1:
-                user_login()
-            elif choice == 2:
-                admin_login()
-            elif choice == 3:
-                super_admin_login()
+        choice = int_input("Enter your choice: ")
+        # if choice < 4:
+        if choice == 1:
+            user_login_check()
+        elif choice == 2:
+            admin_login_check()
+        elif choice == 3:
+            super_admin_login()
         elif choice == 4:
             break
         else:
